@@ -124,6 +124,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }),
       });
 
+      if (!response.ok) throw new Error(`HTTP Error! Status: ${response.status}`);
+
       const data = await response.json();
 
       if (data.status === "success" && data.total_successful > 0) {
