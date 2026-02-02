@@ -29,16 +29,16 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 load_dotenv()
 
 app = Flask(__name__)
-# CORS ko pure access ke liye open kar diya hai hosting ke liye
+# Cloud hosting par CORS issue na aaye isliye ise open rakha hai
 CORS(app)
 
 class Config:
     DEFAULT_INDEX_URL = 'https://results.vtu.ac.in/D25J26Ecbcs/index.php'
     DEFAULT_RESULT_URL = 'https://results.vtu.ac.in/D25J26Ecbcs/resultpage.php'
     
-    # Cloud hosting pe path environment variable se uthayega
+    # Cloud hosting pe Tesseract automatic system path se uthayega
     TESSERACT_PATH = os.getenv('TESSERACT_PATH', None)
-    MAX_SCRAPER_WORKERS = 15 
+    MAX_SCRAPER_WORKERS = 15
     MAX_RETRY_ATTEMPTS = 22
     TEMP_EXCEL_STORAGE: Dict[str, io.BytesIO] = {} 
     
@@ -48,7 +48,7 @@ class Config:
             pytesseract.pytesseract.tesseract_cmd = cls.TESSERACT_PATH
         try:
             pytesseract.get_tesseract_version()
-            print("--- Tesseract Found Successfully ---")
+            print("--- Tesseract OCR Detected Successfully ---")
             return True
         except Exception as e:
             print(f"--- Tesseract Error: {e} ---")
@@ -184,6 +184,7 @@ VTU_SCRAPER = VTUScraper(CAPTCHA_SOLVER)
 
 @app.route('/', methods=['GET'])
 def index():
+    # Templates folder se index.html uthayega
     return render_template('index.html', default_index_url=Config.DEFAULT_INDEX_URL, default_result_url=Config.DEFAULT_RESULT_URL)
 
 @app.route('/api/vtu/results', methods=['POST'])
@@ -223,5 +224,5 @@ if __name__ == '__main__':
     Config.init_tesseract()
     # Cloud hosting ke liye port dynamic hona chahiye
     port = int(os.environ.get("PORT", 5000))
-    # 0.0.0.0 par host karna cloud ke liye zaruri hai
+    # host='0.0.0.0' is mandatory for Render/Docker
     app.run(host='0.0.0.0', port=port, debug=False)
