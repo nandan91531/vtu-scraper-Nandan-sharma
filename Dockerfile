@@ -1,11 +1,13 @@
 # Python ka base image
 FROM python:3.10-slim
 
-# System updates aur Tesseract OCR + OpenCV dependencies (libGL) install karna
+# System updates aur Tesseract OCR + OpenCV dependencies install karna
+# Humne libgl1-mesa-glx ki jagah libgl1 aur libglx0 use kiya hai compatibility ke liye
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     libtesseract-dev \
-    libgl1-mesa-glx \
+    libgl1 \
+    libglx0 \
     libglib2.0-0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -24,5 +26,4 @@ COPY . .
 EXPOSE 5000
 
 # App start karne ki command
-# Yahan 'main' teri file ka naam hai aur 'app' Flask object ka
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
